@@ -4,20 +4,24 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function loginAction(preState: any, formData: FormData) {
-    const username = formData.get("username") as string;
+    const email = formData.get("email") as string;
     const password = formData.get("password") as string;
+
+    if (!email || !email.includes("@")) {
+        return { ...preState, error: "Email không hợp lệ" };
+    }
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json"
         },
-        body: JSON.stringify({ username, password })
+        body: JSON.stringify({ email, password })
     });
 
     if (!res.ok) {
-        console.log("Login failed: Username hoặc mật khẩu không đúng");
-        return { ...preState, error: "Username hoặc mật khẩu không đúng" };
+        console.log("Login failed: Email hoặc mật khẩu không đúng");
+        return { ...preState, error: "Email hoặc mật khẩu không đúng" };
     }
 
     //Xac thuc thanh cong, luu token vao cookie

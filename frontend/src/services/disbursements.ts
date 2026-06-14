@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -130,13 +131,17 @@ export async function getAllDisbursements(page?: number, pageSize?: number, sear
  * GET /disbursements/:id
  * Fetch a single disbursement by ID with full related data.
  */
-export async function getDisbursementById(id: number): Promise<ApiResponse<Disbursement>> {
+export async function getDisbursementById(id: number): Promise<ApiResponse<Disbursement | null>> {
     const headers = await getAuthHeaders();
     try {
         const res = await fetch(`${BASE_URL}/disbursements/${id}`, {
             method: "GET",
             headers,
         });
+
+        if (res.status === 404) {
+            return { status: "success", success: true, data: null } as any;
+        }
 
         if (!res.ok) {
             throw new Error(`Failed to fetch disbursement ${id}: ${res.status} ${res.statusText}`);
@@ -169,7 +174,9 @@ export async function createDisbursement(
             throw new Error(errorBody.message || `Failed to create disbursement: ${res.status} ${res.statusText}`);
         }
 
-        return res.json();
+        const data = await res.json();
+        revalidatePath("/allocations");
+        return data;
     } catch (error) {
         console.error("[createDisbursement]", error);
         throw error;
@@ -228,7 +235,9 @@ export async function updateDisbursement(
             throw new Error(errorBody.message || `Failed to update disbursement ${id}: ${res.status} ${res.statusText}`);
         }
 
-        return res.json();
+        const data = await res.json();
+        revalidatePath("/allocations");
+        return data;
     } catch (error) {
         console.error("[updateDisbursement]", error);
         throw error;
@@ -253,7 +262,9 @@ export async function deleteDisbursement(
             throw new Error(`Failed to delete disbursement ${id}: ${res.status} ${res.statusText}`);
         }
 
-        return res.json();
+        const data = await res.json();
+        revalidatePath("/allocations");
+        return data;
     } catch (error) {
         console.error("[deleteDisbursement]", error);
         throw error;

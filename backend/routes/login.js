@@ -5,11 +5,11 @@ const AccountModel = require('../models/AccountModel');
 const { sendSuccess, sendError } = require('../utils/responseHandler');
 
 router.post('/', async (req, res) => {
-    const { username, password } = req.body;
+    const { email, password } = req.body;
 
     try {
         const bcrypt = require('bcryptjs');
-        const user = await AccountModel.findByUsername(username);
+        const user = await AccountModel.findByEmail(email);
         
         let isValidPassword = false;
         if (user) {
@@ -40,7 +40,7 @@ router.post('/', async (req, res) => {
                 user: { ...currentUser, permissions: userPermissions } 
             }, 'Login successful');
         } else {
-            return sendError(res, 'Tên đăng nhập hoặc mật khẩu không đúng.', [], 401);
+            return sendError(res, 'Email hoặc mật khẩu không đúng.', [], 401);
         }
 
     } catch (error) {

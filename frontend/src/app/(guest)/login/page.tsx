@@ -1,14 +1,13 @@
 "use client";
 import React, { useActionState, Suspense } from "react";
-import { Lock, User } from "lucide-react";
+import { Lock, Mail } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import heartBg from "@/assets/images/background/heart.jpg";
 import { loginAction } from "@/services/login";
 
 function LoginForm() {
-    const [preState, formAction, isPending] = useActionState(loginAction, { username: null, password: null, error: null });
+    const [preState, formAction, isPending] = useActionState(loginAction, { email: null, password: null, error: null });
     const searchParams = useSearchParams();
     const registered = searchParams.get("registered");
 
@@ -39,14 +38,14 @@ function LoginForm() {
                             <form className="space-y-6" action={formAction}>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-yellow-600/70">
-                                        <User size={18} />
+                                        <Mail size={18} />
                                     </div>
                                     <input
                                         className="block w-full pl-10 pr-3 py-3 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors bg-gray-50/50"
-                                        id="username"
-                                        type="text"
-                                        name="username"
-                                        placeholder="@username"
+                                        id="email"
+                                        type="email"
+                                        name="email"
+                                        placeholder="Email address"
                                         required
                                     />
                                 </div>
@@ -76,12 +75,7 @@ function LoginForm() {
                                     </button>
                                 </div>
 
-                                <div className="text-center pt-4 border-t border-gray-100">
-                                    <span className="text-xs text-gray-500">Chưa có tài khoản? </span>
-                                    <Link href="/register" className="text-xs text-green-600 hover:underline font-bold transition-colors">
-                                        Đăng ký ngay
-                                    </Link>
-                                </div>
+
 
                                 {preState.error && <p className="text-red-500 mt-2 text-sm text-center">{preState.error}</p>}
                                 {registered === "true" && (

@@ -37,8 +37,11 @@ export default function Baner({ }: BanerProps) {
 
 
                     <div className="flex flex-wrap items-center gap-6 pt-4">
-                        <Link href="/register">
-                            <Button variant="accent" size="lg" className="rounded-full px-8">ỦNG HỘ NGAY</Button>
+                        <Link href="/register-sponsor">
+                            <Button variant="accent" size="lg" className="rounded-full px-8">ĐĂNG KÝ HỖ TRỢ</Button>
+                        </Link>
+                        <Link href="/register-student">
+                            <Button variant="accent" size="lg" className="rounded-full px-8">ĐĂNG KÝ HỌC SINH</Button>
                         </Link>
                     </div>
                 </div>

@@ -546,20 +546,24 @@ export default function ImageListClient({
                     >
                       <Download size={16} />
                     </a>
-                    <button
-                      onClick={() => openEditModal(img)}
-                      className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-primary-900 hover:scale-105 shadow transition-all duration-200"
-                      title="Chỉnh sửa hình ảnh"
-                    >
-                      <Pencil size={16} />
-                    </button>
-                    <button
-                      onClick={() => handleDeleteImage(img.id)}
-                      className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-red-600 hover:scale-105 shadow transition-all duration-200"
-                      title="Xoá hình ảnh"
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                    {hasPermission("IMAGE_CREATE") && (
+                      <button
+                        onClick={() => openEditModal(img)}
+                        className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-primary-900 hover:scale-105 shadow transition-all duration-200"
+                        title="Chỉnh sửa hình ảnh"
+                      >
+                        <Pencil size={16} />
+                      </button>
+                    )}
+                    {hasPermission("IMAGE_DELETE") && (
+                      <button
+                        onClick={() => handleDeleteImage(img.id)}
+                        className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-red-600 hover:scale-105 shadow transition-all duration-200"
+                        title="Xoá hình ảnh"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    )}
                   </div>
                 </div>
 

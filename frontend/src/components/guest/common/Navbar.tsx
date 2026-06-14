@@ -53,7 +53,7 @@ export default function Navbar({ }: NavbarProps) {
                             <Link href="/login" className="text-primary-900 hover:text-primary-700 transition-colors">
                                 <User size={30} />
                             </Link>
-                            <Link href="/register">
+                            <Link href="/register-sponsor">
                                 <Button variant="primary" size="md">ỦNG HỘ NGAY</Button>
                             </Link>
                         </div>
@@ -90,7 +90,7 @@ export default function Navbar({ }: NavbarProps) {
                                         <User size={20} /> Login
                                     </Link>
                                 </div>
-                                <Link href="/register" className="w-full">
+                                <Link href="/register-sponsor" className="w-full">
                                     <Button variant="primary" fullWidth>ỦNG HỘ NGAY</Button>
                                 </Link>
                             </div>

@@ -116,6 +116,7 @@ export default function ImageListClient({
   const [formMonth, setFormMonth] = useState("");
   const [formError, setFormError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
   // ─── Proxy URL Helpers ───────────────────────────────────────────────────────
   const getProxiedUrl = (url: string) => {
@@ -393,17 +394,21 @@ export default function ImageListClient({
   };
 
   const handleDeleteImage = async (id: number) => {
-    if (!window.confirm("Bạn có chắc chắn muốn xoá hình ảnh này không?")) return;
-
+    // Bước 1: yêu cầu xác nhận inline
+    if (confirmDeleteId !== id) {
+      setConfirmDeleteId(id);
+      return;
+    }
+    // Bước 2: đã xác nhận → thực hiện xoá
+    setConfirmDeleteId(null);
     try {
       await deleteImage(id);
       router.refresh();
-
       // Update local state directly to show immediate deletion response
       setDisplayedImages(prev => prev.filter(img => img.id !== id));
       setTotal(prev => Math.max(0, prev - 1));
     } catch (err: any) {
-      alert("Lỗi khi xoá hình ảnh: " + err.message);
+      console.error("Lỗi khi xoá hình ảnh:", err);
     }
   };
 
@@ -527,7 +532,7 @@ export default function ImageListClient({
                 {/* Image Box */}
                 <div className="relative w-full aspect-[4/3] bg-gray-50 border-b border-gray-100 overflow-hidden">
                   <SafeImage
-                    src={img.url}
+                    src={`${img.url}${img.url.includes('?') ? '&' : '?'}_t=${img.timestamp ? new Date(img.timestamp).getTime() : Date.now()}`}
                     alt={`Ảnh HS: ${studentName}`}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"
@@ -546,7 +551,7 @@ export default function ImageListClient({
                     >
                       <Download size={16} />
                     </a>
-                    {hasPermission("IMAGE_CREATE") && (
+                    {hasPermission("IMAGE_UPDATE") && (
                       <button
                         onClick={() => openEditModal(img)}
                         className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-primary-900 hover:scale-105 shadow transition-all duration-200"
@@ -556,13 +561,32 @@ export default function ImageListClient({
                       </button>
                     )}
                     {hasPermission("IMAGE_DELETE") && (
-                      <button
-                        onClick={() => handleDeleteImage(img.id)}
-                        className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-red-600 hover:scale-105 shadow transition-all duration-200"
-                        title="Xoá hình ảnh"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      confirmDeleteId === img.id ? (
+                        <div className="flex items-center gap-1.5 bg-white rounded-full px-2 py-1 shadow">
+                          <button
+                            onClick={() => handleDeleteImage(img.id)}
+                            className="px-2 py-0.5 rounded-full bg-red-500 text-white text-[10px] font-bold hover:bg-red-600 transition-colors"
+                            title="Xác nhận xoá"
+                          >
+                            Xoá
+                          </button>
+                          <button
+                            onClick={() => setConfirmDeleteId(null)}
+                            className="px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-[10px] font-bold hover:bg-gray-200 transition-colors"
+                            title="Huỷ"
+                          >
+                            Huỷ
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => handleDeleteImage(img.id)}
+                          className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-700 hover:text-red-600 hover:scale-105 shadow transition-all duration-200"
+                          title="Xoá hình ảnh"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      )
                     )}
                   </div>
                 </div>
@@ -790,7 +814,7 @@ export default function ImageListClient({
                   <span className="text-[10px] text-gray-400 font-medium block">Xem trước ảnh:</span>
                   <div className="relative w-full aspect-[4/3] rounded-lg overflow-hidden border border-gray-200 bg-white">
                     <SafeImage
-                      src={formFileData || getProxiedUrl(formUrl)}
+                      src={formFileData || (formUrl ? `${getProxiedUrl(formUrl)}${getProxiedUrl(formUrl).includes('?') ? '&' : '?'}_t=${editingImage?.timestamp ? new Date(editingImage.timestamp).getTime() : Date.now()}` : "")}
                       alt="Xem trước hình ảnh"
                       fill
                       className="object-cover"

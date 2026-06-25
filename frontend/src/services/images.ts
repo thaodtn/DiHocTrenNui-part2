@@ -1,6 +1,7 @@
 "use server";
 
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -75,7 +76,7 @@ export async function getAllImages(page?: number, pageSize?: number, search?: st
         if (search) params.set('search', search);
         const qs = params.toString();
         if (qs) url += `?${qs}`;
-        const res = await fetch(url, { method: "GET", headers });
+        const res = await fetch(url, { method: "GET", headers, cache: "no-store" });
         if (!res.ok) throw new Error(`Failed to fetch images: ${res.status} ${res.statusText}`);
         return res.json();
     } catch (error) {
@@ -88,7 +89,7 @@ export async function getAllImages(page?: number, pageSize?: number, search?: st
 export async function getImageById(id: number): Promise<ApiResponse<Image>> {
     const headers = await getAuthHeaders();
     try {
-        const res = await fetch(`${BASE_URL}/images/${id}`, { method: "GET", headers });
+        const res = await fetch(`${BASE_URL}/images/${id}`, { method: "GET", headers, cache: "no-store" });
         if (!res.ok) throw new Error(`Failed to fetch image ${id}: ${res.status} ${res.statusText}`);
         return res.json();
     } catch (error) {
@@ -101,7 +102,7 @@ export async function getImageById(id: number): Promise<ApiResponse<Image>> {
 export async function getImagesByStudent(studentId: number): Promise<ApiResponse<Image[]>> {
     const headers = await getAuthHeaders();
     try {
-        const res = await fetch(`${BASE_URL}/images/student/${studentId}`, { method: "GET", headers });
+        const res = await fetch(`${BASE_URL}/images/student/${studentId}`, { method: "GET", headers, cache: "no-store" });
         if (!res.ok) throw new Error(`Failed to fetch images for student ${studentId}: ${res.status} ${res.statusText}`);
         return res.json();
     } catch (error) {
@@ -115,7 +116,7 @@ export async function getImagesByRange(params: ImageRangeParams): Promise<ApiRes
     const headers = await getAuthHeaders();
     try {
         const query = new URLSearchParams({ start: params.start, end: params.end });
-        const res = await fetch(`${BASE_URL}/images/range?${query.toString()}`, { method: "GET", headers });
+        const res = await fetch(`${BASE_URL}/images/range?${query.toString()}`, { method: "GET", headers, cache: "no-store" });
         if (!res.ok) throw new Error(`Failed to fetch images by range: ${res.status} ${res.statusText}`);
         return res.json();
     } catch (error) {
@@ -130,7 +131,9 @@ export async function createImage(payload: CreateImagePayload): Promise<ApiRespo
     try {
         const res = await fetch(`${BASE_URL}/images`, { method: "POST", headers, body: JSON.stringify(payload) });
         if (!res.ok) throw new Error(`Failed to create image: ${res.status} ${res.statusText}`);
-        return res.json();
+        const data = await res.json();
+        revalidatePath("/images");
+        return data;
     } catch (error) {
         console.error("[createImage]", error);
         throw error;
@@ -143,7 +146,9 @@ export async function updateImage(id: number, payload: UpdateImagePayload): Prom
     try {
         const res = await fetch(`${BASE_URL}/images/${id}`, { method: "PATCH", headers, body: JSON.stringify(payload) });
         if (!res.ok) throw new Error(`Failed to update image ${id}: ${res.status} ${res.statusText}`);
-        return res.json();
+        const data = await res.json();
+        revalidatePath("/images");
+        return data;
     } catch (error) {
         console.error("[updateImage]", error);
         throw error;
@@ -156,7 +161,9 @@ export async function deleteImage(id: number): Promise<{ status: string; message
     try {
         const res = await fetch(`${BASE_URL}/images/${id}`, { method: "DELETE", headers });
         if (!res.ok) throw new Error(`Failed to delete image ${id}: ${res.status} ${res.statusText}`);
-        return res.json();
+        const data = await res.json();
+        revalidatePath("/images");
+        return data;
     } catch (error) {
         console.error("[deleteImage]", error);
         throw error;

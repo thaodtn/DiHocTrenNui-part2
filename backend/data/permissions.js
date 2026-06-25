@@ -54,6 +54,9 @@ const PERMISSIONS = [
   { id: 34, resource_id: 10, action_id: 2, code: 'VOLUNTEER_READ' },
   { id: 35, resource_id: 10, action_id: 3, code: 'VOLUNTEER_UPDATE' },
   { id: 36, resource_id: 10, action_id: 4, code: 'VOLUNTEER_DELETE' },
+
+  // Images Update
+  { id: 37, resource_id: 6, action_id: 3, code: 'IMAGE_UPDATE' },
 ];
 
 module.exports = PERMISSIONS;
